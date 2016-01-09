@@ -1,0 +1,31 @@
+{
+  "name": "symbl",
+  "version": "0.0.0",
+  "description": "The Symbl.io AI Service Platform",
+  "main": "symbl.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-init": "^0.3.2",
+    "q": "^1.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/getsymbl/symbl.git"
+  },
+  "author": "Evan Adams",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/getsymbl/symbl/issues"
+  },
+  "homepage": "https://github.com/getsymbl/symbl"
+}
