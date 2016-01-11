@@ -3,7 +3,6 @@ var fs = require('fs');
 var cjson = require('circular-json');
 var symbl = require('../symbl.js');
 
-
 describe('Baseline tests - Array', function() {
 	
   describe('Baseline test - #indexOf()', function () {
@@ -20,8 +19,20 @@ describe('Baseline tests - Array', function() {
   
   describe('Unit tests', function() {
 	 
-	it('Identity test', function() {
+	it('should have tautology', function() {
 		should.equal(symbl, symbl);
+	});
+	
+	it('should have functional synchronous repository', function() {
+		var testUuid = symbl.bootstrap.generateUuid();
+		symbl.repository.setItemSync(testUuid,'the answer to life, the universe, and everything.');
+		should.equal('the answer to life, the universe, and everything.', symbl.repository.getItemSync(testUuid));
+		symbl.repository.removeItemSync(testUuid);
+		should.equal(symbl.repository.getItemSync(testUuid), undefined);
+	});
+	
+	it('should have functional REST service', function() {
+		
 	});
   
   });

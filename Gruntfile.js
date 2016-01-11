@@ -23,13 +23,22 @@ module.exports = function(grunt) {
 			},
 			src: ['test/**/*.js']
 		  }
-		}
+		},
+		mochacov: {
+			options: {
+			  reporter: 'html-cov',
+			  require: ['should'],
+			  output: 'coverage.html'
+			},
+			all: ['test/*.js']
+		  }
 	  });
 
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-mocha-test');
+	grunt.loadNpmTasks('grunt-mocha-cov');
 	grunt.loadNpmTasks('grunt-karma');
-	grunt.registerTask('default', ['jshint', 'mochaTest']);
+	grunt.registerTask('default', ['jshint', 'mochaTest', 'mochacov']);
 
 };

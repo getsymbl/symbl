@@ -14,6 +14,7 @@
     "commander": "^2.9.0",
     "express": "^4.13.3",
     "forge": "^2.3.0",
+    "getmac": "^1.0.7",
     "glob": "^6.0.4",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
@@ -29,7 +30,9 @@
     "should": "^8.1.0"
   },
   "devDependencies": {
+    "blanket": "^1.2.1",
     "grunt-karma": "^0.12.1",
+    "grunt-mocha-cov": "^0.4.0",
     "grunt-mocha-test": "^0.12.7",
     "karma": "^0.13.19",
     "mocha": "^2.3.4",
@@ -47,5 +50,13 @@
   "bugs": {
     "url": "https://github.com/getsymbl/symbl/issues"
   },
-  "homepage": "https://github.com/getsymbl/symbl"
+  "homepage": "https://github.com/getsymbl/symbl",
+  "config": {
+	  "blanket": {
+		"pattern": [
+		  "symbl.js",
+		  "src"
+		]
+	  }
+	}
 }

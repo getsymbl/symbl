@@ -6,7 +6,7 @@
 */
 
 /**
-* System constants
+* System dependencies
 */
 
 const aws			= require('aws-sdk');
@@ -15,28 +15,31 @@ const cryptography	= require('node-forge');
 const express		= require('express');
 const forge			= require('forge');
 const cjson			= require('circular-json');
+const getmac		= require('getmac');
 const http 			= require('http');
 const https 		= require('https');
+const os			= require('os');
 const platform		= require('platform');
 const should		= require('should');
 const storage 		= require('node-persist');
 
 /**
-* Initialize symbl repository
+* Dependency initialization
 */
-var symbls = storage.init( {
-    dir:'var',
-    stringify: cjson.stringify,
-    parse: cjson.parse,
-    encoding: 'utf8',
-    logging: false,  // can also be custom logging function
-    continuous: true,
-    interval: false,
-    ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS
-}, function(){} ).then(function(){}, function(){});
+
+storage.init( {
+		dir: 'data',
+		stringify: cjson.stringify,
+		parse: cjson.parse,
+		encoding: 'utf8',
+		logging: false,
+		continuous: true,
+		interval: false,
+		ttl: false, 
+	} );
 
 /**
-* Initialize symbl
+* Initialize Symbl
 */
 var symbl = {
 	
@@ -61,7 +64,18 @@ symbl.cli 				= require('commander');
 symbl.graph				= {};
 symbl.lambda 			= require('q');
 symbl.log				= {};
+symbl.repository		= {};
+symbl.test				= {};
 
+/**
+* Initialize symbl repository
+*/
+
+symbl.repository = storage;
+
+/**
+* Initialize API
+*/
 symbl.api.get('/', function (req, res) {
   res.send('/');
 })
@@ -73,6 +87,38 @@ symbl.api.get('/test', function(req, res) {
 symbl.api.get('/cloud', function(req, res) {
 	res.send('/cloud');
 });
+
+symbl.bootstrap = {
+
+	generateUuid : function(){},
+	setup : function(){}
+	
+}
+
+/**
+* Initialize bootstrap
+*/
+
+symbl.bootstrap.generateUuid = function() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
+
+symbl.bootstrap.setup = function() {
+	var md = cryptography.md.sha256.create();
+	md.update(symbl.bootstrap.generateUuid());
+	symbl.repository.setItemSync('userKey', symbl.bootstrap.generateUuid());
+	symbl.repository.setItemSync('userPassword', md.digest().toHex());
+}
+
+/**
+* Initialize Cli
+*/
 
 symbl.cli
 	.version('0.0.1')
@@ -94,28 +140,30 @@ symbl.cli
 	
 symbl.cli
    .command('setup')
-   .description('run setup commands')
-   .action(function() {
-     console.log('setup');
-   });
+   .description('run setup <email> <password>')
+   .action(symbl.bootstrap.setup());
 
 symbl.cli
-   .command('service <port>')
-   .description('run as a service on <port>')
-   .action(function(port) {
-		if(port == undefined) { port = 80; }
-		symbl.log.info("Starting service on port " + port);
-		http.createServer(symbl.api).listen(port);
+   .command('service <host> <port>')
+   .description('run as a service on <host> <port>')
+   .action(function(host, port) {
+		if(port == undefined) { host = "localhost", port = 80; }
+		getmac.getMac(function(err,macAddress){
+			if (err)  throw err;
+			http.createServer(symbl.api).listen(port, host);
+			symbl.log.info("Starting service on " + os.hostname() + " " + macAddress + " " + host + ":" + port);
+		});
+		
    });
 
 symbl.cli
    .command('teardown <dir> [otherDirs...]')
    .description('run teardown commands')
    .action(function(dir, otherDirs) {
-     console.log('dir "%s"', dir);
+     symbl.log.debug('dir "%s"', dir);
      if (otherDirs) {
        otherDirs.forEach(function (oDir) {
-         console.log('dir "%s"', oDir);
+         symbl.log.debug('dir "%s"', oDir);
        });
      }
    });
@@ -124,12 +172,13 @@ symbl.cli
    .command('*')
    .description('deploy the given env')
    .action(function(env) {
-     console.log('deploying "%s"', env);
+
    });
 
 /**
 * Initialize log
 */
+
 symbl.log = {
 	
 	debug	: function() {},
@@ -139,11 +188,15 @@ symbl.log = {
 
 };
 
+symbl.log.debug = function(message, e) { if(true) { console.log(message); } };
 symbl.log.info = function(message, e) { console.log(message); }
+symbl.log.warn = function(message, e) { console.log("Warning: " + message); }
+symbl.log.error = function(message, e) { console.log("Error: " + message); }
 
 /**
 * Initialize test
 */
+
 symbl.test = {
 	
 	benchmark	: {},
@@ -163,21 +216,36 @@ symbl.test.benchmark
   'Hello World!'.indexOf('o') > -1;
 	})
 .on('cycle', function(event) {
-  console.log(String(event.target));
+  symbl.log.debug(String(event.target));
 	})
 .on('complete', function() {
-  console.log('Fastest is ' + this.filter('fastest').map('name'));
+  symbl.log.debug('Fastest is ' + this.filter('fastest').map('name'));
 	})
 
 symbl.test.run = function() {
 
-	//symbl.test.benchmark.run({ 'async': true });	
-	//cjson.stringify(symbl.test.benchmark.run({ 'async': true }))
+	symbl.test.benchmark.run({ 'async': true });	
+	
 }
 	
 /**
 * Cli entry point
 */	
+
+if( symbl.repository.getItemSync('userKey') === undefined ) {
+	
+	symbl.log.warn("Run #symbl setup <email> <password> to create or login to an account.");
+
+} else {	
+
+	if( symbl.repository.getItemSync('userPassword') === undefined ) {
+		
+		symbl.log.error("Session expired. Run #symbl login.");
+		
+	}
+
+}
+
 symbl.cli
-   .parse(process.argv);	
-   
+	.parse(process.argv);	   
+	
