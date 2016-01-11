@@ -9,6 +9,7 @@
 * System constants
 */
 
+const aws			= require('aws-sdk');
 const benchmark		= require('benchmark');
 const cryptography	= require('node-forge');
 const express		= require('express');
@@ -17,18 +18,29 @@ const cjson			= require('circular-json');
 const http 			= require('http');
 const https 		= require('https');
 const platform		= require('platform');
+const should		= require('should');
 const storage 		= require('node-persist');
 
 /**
 * Initialize symbl repository
 */
-var symbls = {};
+var symbls = storage.init( {
+    dir:'var',
+    stringify: cjson.stringify,
+    parse: cjson.parse,
+    encoding: 'utf8',
+    logging: false,  // can also be custom logging function
+    continuous: true,
+    interval: false,
+    ttl: false, // ttl* [NEW], can be true for 24h default or a number in MILLISECONDS
+}, function(){} ).then(function(){}, function(){});
 
 /**
 * Initialize symbl
 */
 var symbl = {
 	
+	ai			: {},
 	api			: {},
 	bootstrap	: {},
 	cloud		: {},
@@ -39,10 +51,14 @@ var symbl = {
 	
 }
 
+module.exports = symbl;
+
+symbl.ai				= {};
 symbl.api				= express();
 symbl.bootstrap			= {};
 symbl.cloud				= {};
 symbl.cli 				= require('commander');
+symbl.graph				= {};
 symbl.lambda 			= require('q');
 symbl.log				= {};
 
@@ -85,7 +101,7 @@ symbl.cli
 
 symbl.cli
    .command('service <port>')
-   .description('run as a REST service on <port>')
+   .description('run as a service on <port>')
    .action(function(port) {
 		if(port == undefined) { port = 80; }
 		symbl.log.info("Starting service on port " + port);
@@ -164,3 +180,4 @@ symbl.test.run = function() {
 */	
 symbl.cli
    .parse(process.argv);	
+   
