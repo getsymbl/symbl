@@ -27,7 +27,7 @@ const storage 		= require('node-persist');
 * Dependency initialization
 */
 
-storage.init( {
+storage.initSync( {
 		dir: 'data',
 		stringify: cjson.stringify,
 		parse: cjson.parse,
@@ -90,14 +90,17 @@ symbl.api.get('/cloud', function(req, res) {
 
 symbl.bootstrap = {
 
-	generateUuid : function(){},
-	setup : function(){}
-	
+	generateUuid 	: function(){},
+	setup 			: function(){},
+	hash			: {}	
+		
 }
 
 /**
 * Initialize bootstrap
 */
+
+symbl.bootstrap.hash = cryptography.md.sha512.create();
 
 symbl.bootstrap.generateUuid = function() {
     var d = new Date().getTime();
@@ -109,26 +112,47 @@ symbl.bootstrap.generateUuid = function() {
     return uuid;
 }
 
-symbl.bootstrap.setup = function() {
-	var md = cryptography.md.sha256.create();
-	md.update(symbl.bootstrap.generateUuid());
-	symbl.repository.setItemSync('userKey', symbl.bootstrap.generateUuid());
-	symbl.repository.setItemSync('userPassword', md.digest().toHex());
-}
+symbl.bootstrap.setup = function(email, password) {
+	
+	var userUuid = symbl.bootstrap.generateUuid();
+	var userKey = symbl.bootstrap.hash.digest().getBytes();
+	//symbl.repository.setItemSync('userUuid', userUuid );
+	
+	//symbl.repository.setItemSync('email', email );
+	
+	//symbl.bootstrap.hash.update(symbl.bootstrap.generateUuid());
+	
+	
+	//symbl.bootstrap.hash.update(password);
+	//symbl.repository.setItemSync('userPassword', symbl.bootstrap.hash.digest().getBytes() );
+
+		var setupUser = {
+		
+			email 		: email,
+			password 	: password,
+			uuid		: userUuid,
+
+			
+		}
+		
+		symbl.repository.setItemSync('user', setupUser);
+		symbl.repository.persist();
+		
+	}
 
 /**
 * Initialize Cli
 */
 
 symbl.cli
-	.version('0.0.1')
+	.version('0.1.0')
 	.option('-T, -Test', 'Execute tests.')
 
 symbl.cli
 	.command('')
 	.description('')
 	.action(function() {
-		
+		console.log(1);
 	});
 	
 symbl.cli
@@ -141,7 +165,7 @@ symbl.cli
 symbl.cli
    .command('setup')
    .description('run setup <email> <password>')
-   .action(symbl.bootstrap.setup());
+   .action(function(email, password) { symbl.bootstrap.setup(email, password) } );
 
 symbl.cli
    .command('service <host> <port>')
@@ -172,7 +196,9 @@ symbl.cli
    .command('*')
    .description('deploy the given env')
    .action(function(env) {
-
+		storage.getItem('user', function (err, value) {
+			console.log(value);
+		}); 
    });
 
 /**
@@ -231,20 +257,6 @@ symbl.test.run = function() {
 /**
 * Cli entry point
 */	
-
-if( symbl.repository.getItemSync('userKey') === undefined ) {
-	
-	symbl.log.warn("Run #symbl setup <email> <password> to create or login to an account.");
-
-} else {	
-
-	if( symbl.repository.getItemSync('userPassword') === undefined ) {
-		
-		symbl.log.error("Session expired. Run #symbl login.");
-		
-	}
-
-}
 
 symbl.cli
 	.parse(process.argv);	   
