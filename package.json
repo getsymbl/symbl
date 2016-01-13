@@ -36,6 +36,7 @@
     "grunt-mocha-test": "^0.12.7",
     "karma": "^0.13.19",
     "mocha": "^2.3.4",
+    "rubyjs": "^0.7.2",
     "should": "^8.1.0"
   },
   "scripts": {
@@ -52,11 +53,11 @@
   },
   "homepage": "https://github.com/getsymbl/symbl",
   "config": {
-	  "blanket": {
-		"pattern": [
-		  "symbl.js",
-		  "src"
-		]
-	  }
-	}
+    "blanket": {
+      "pattern": [
+        "symbl.js",
+        "src"
+      ]
+    }
+  }
 }

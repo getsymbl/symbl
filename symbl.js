@@ -114,16 +114,10 @@ symbl.bootstrap.generateUuid = function() {
 
 symbl.bootstrap.setup = function(email, password) {
 	
+	password = symbl.bootstrap.hash
+	
 	var userUuid = symbl.bootstrap.generateUuid();
 	var userKey = symbl.bootstrap.hash.digest().getBytes();
-	//symbl.repository.setItemSync('userUuid', userUuid );
-	
-	//symbl.repository.setItemSync('email', email );
-	
-	//symbl.bootstrap.hash.update(symbl.bootstrap.generateUuid());
-	
-	
-	//symbl.bootstrap.hash.update(password);
 	//symbl.repository.setItemSync('userPassword', symbl.bootstrap.hash.digest().getBytes() );
 
 		var setupUser = {
@@ -182,7 +176,7 @@ symbl.cli
 
 symbl.cli
    .command('teardown <dir> [otherDirs...]')
-   .description('run teardown commands')
+   .description('run uninstall')
    .action(function(dir, otherDirs) {
      symbl.log.debug('dir "%s"', dir);
      if (otherDirs) {
@@ -194,7 +188,7 @@ symbl.cli
 
 symbl.cli
    .command('*')
-   .description('deploy the given env')
+   .description('run <*>')
    .action(function(env) {
 		storage.getItem('user', function (err, value) {
 			console.log(value);
