@@ -7,11 +7,13 @@
     "test": "test"
   },
   "dependencies": {
+    "api-benchmark": "^0.2.5",
     "async": "^1.5.2",
     "aws-sdk": "^2.2.28",
     "benchmark": "^2.0.0",
     "circular-json": "^0.3.0",
     "commander": "^2.9.0",
+    "dependency-graph": "^0.4.1",
     "express": "^4.13.3",
     "forge": "^2.3.0",
     "getmac": "^1.0.7",

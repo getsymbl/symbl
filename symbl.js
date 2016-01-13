@@ -77,7 +77,7 @@ symbl.repository = storage;
 * Initialize API
 */
 symbl.api.get('/', function (req, res) {
-  res.send('/');
+	res.send('/');
 })
 
 symbl.api.get('/test', function(req, res) {
@@ -86,6 +86,10 @@ symbl.api.get('/test', function(req, res) {
 
 symbl.api.get('/cloud', function(req, res) {
 	res.send('/cloud');
+});
+
+symbl.api.get('/api', function(req, res) {
+	res.send('/api');
 });
 
 symbl.bootstrap = {
@@ -114,11 +118,8 @@ symbl.bootstrap.generateUuid = function() {
 
 symbl.bootstrap.setup = function(email, password) {
 	
-	password = symbl.bootstrap.hash
-	
 	var userUuid = symbl.bootstrap.generateUuid();
 	var userKey = symbl.bootstrap.hash.digest().getBytes();
-	//symbl.repository.setItemSync('userPassword', symbl.bootstrap.hash.digest().getBytes() );
 
 		var setupUser = {
 		
@@ -126,7 +127,6 @@ symbl.bootstrap.setup = function(email, password) {
 			password 	: password,
 			uuid		: userUuid,
 
-			
 		}
 		
 		symbl.repository.setItemSync('user', setupUser);
@@ -175,8 +175,20 @@ symbl.cli
    });
 
 symbl.cli
-   .command('teardown <dir> [otherDirs...]')
-   .description('run uninstall')
+   .command('import <type> <dir> [otherDirs...]')
+   .description('import entites')
+   .action(function(dir, otherDirs) {
+     symbl.log.debug('dir "%s"', dir);
+     if (otherDirs) {
+       otherDirs.forEach(function (oDir) {
+         symbl.log.debug('dir "%s"', oDir);
+       });
+     }
+   });
+   
+symbl.cli
+   .command('export <entity> <type> <dir> [otherDirs...]')
+   .description('export <entity> <type> <dir>')
    .action(function(dir, otherDirs) {
      symbl.log.debug('dir "%s"', dir);
      if (otherDirs) {
