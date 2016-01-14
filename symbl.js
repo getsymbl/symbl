@@ -9,6 +9,7 @@
 * System dependencies
 */
 
+const _ 			= require('lodash');
 const aws			= require('aws-sdk');
 const benchmark		= require('benchmark');
 const cryptography	= require('node-forge');
@@ -65,13 +66,29 @@ symbl.graph				= {};
 symbl.lambda 			= require('q');
 symbl.log				= {};
 symbl.repository		= {};
+symbl.schema			= {};
 symbl.test				= {};
 
 /**
 * Initialize symbl repository
 */
-
 symbl.repository = storage;
+
+/**
+* Initialize AI
+*/
+symbl.ai = {
+	
+	entityPrototype : {
+			name 		: "",
+			code		: "",
+			resources	: "",
+	},
+	test 			: function() {},
+	add				: function() {},
+	remove			: function() {},
+	
+}
 
 /**
 * Initialize API
@@ -103,7 +120,6 @@ symbl.bootstrap = {
 /**
 * Initialize bootstrap
 */
-
 symbl.bootstrap.hash = cryptography.md.sha512.create();
 
 symbl.bootstrap.generateUuid = function() {
@@ -123,9 +139,14 @@ symbl.bootstrap.setup = function(email, password) {
 
 		var setupUser = {
 		
-			email 		: email,
-			password 	: password,
-			uuid		: userUuid,
+			email 				: email,
+			emailSecondary		: "",
+			mobile				: "",
+			password 			: password,
+			publicKey			: "",
+			privateKey			: "",
+			uuid				: userUuid,
+			services			: {}
 
 		}
 		
@@ -137,7 +158,6 @@ symbl.bootstrap.setup = function(email, password) {
 /**
 * Initialize Cli
 */
-
 symbl.cli
 	.version('0.1.0')
 	.option('-T, -Test', 'Execute tests.')
@@ -208,9 +228,71 @@ symbl.cli
    });
 
 /**
+* Initialize cloud
+*/
+symbl.cloud = {
+
+	entityPrototype	: {
+		
+		name 	: "",
+		graphs	: {},
+		
+	},
+	add		: function() {
+		
+	},
+	remove	: function() {},
+	copy	: function() {},
+
+}	
+   
+/**
+* Initialize graph
+*/   
+symbl.graph = {
+	
+	entityPrototype	: 
+	{
+		x 			: 0,
+		y 			: 0,
+		z 			: 0,
+		name		: "",
+		cssClass 	: "",
+		schema		: ""
+	},
+	copy				: function(entity) {
+		
+		return _.cloneDeep(entity);
+		
+	},					
+	addNode				: function() {},
+	addConnection 		: function() {},
+	removeNode			: function() {},
+	removeConnection	: function() {},
+	fold				: function() {},
+	intersection		: function() {},
+	metric				: function() {},
+	test				: function() {
+		
+		var test = copy(symbl.graph);
+		
+	},
+	
+};
+
+symbl.schema = {
+	
+	entityPrototype		: 
+	{
+		name	: "",
+		model	: {},
+	}
+	
+}
+   
+/**
 * Initialize log
 */
-
 symbl.log = {
 	
 	debug	: function() {},
@@ -228,7 +310,6 @@ symbl.log.error = function(message, e) { console.log("Error: " + message); }
 /**
 * Initialize test
 */
-
 symbl.test = {
 	
 	benchmark	: {},
@@ -247,6 +328,9 @@ symbl.test.benchmark
 .add('String#indexOf', function() {
   'Hello World!'.indexOf('o') > -1;
 	})
+.add('symbl.graph.test', function(){
+	symbl.graph.test();
+	})
 .on('cycle', function(event) {
   symbl.log.debug(String(event.target));
 	})
@@ -263,7 +347,6 @@ symbl.test.run = function() {
 /**
 * Cli entry point
 */	
-
 symbl.cli
 	.parse(process.argv);	   
 	
