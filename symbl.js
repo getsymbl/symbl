@@ -28,7 +28,7 @@ const storage 		= require('node-persist');
 * Dependency initialization
 */
 
-storage.initSync( {
+storage.init( {
 		dir: 'data',
 		stringify: cjson.stringify,
 		parse: cjson.parse,
@@ -84,9 +84,15 @@ symbl.ai = {
 			code		: "",
 			resources	: "",
 	},
-	test 			: function() {},
+	copy			: function(entity) {
+		return _.cloneDeep(entity);
+	},
+	test 			: function() {
+		return this.copy(symbl.ai);
+	},
 	add				: function() {},
 	remove			: function() {},
+	
 	
 }
 
@@ -223,7 +229,7 @@ symbl.cli
    .description('run <*>')
    .action(function(env) {
 		storage.getItem('user', function (err, value) {
-			console.log(value);
+			
 		}); 
    });
 
@@ -274,7 +280,7 @@ symbl.graph = {
 	metric				: function() {},
 	test				: function() {
 		
-		var test = copy(symbl.graph);
+		return this.copy(symbl.graph);
 		
 	},
 	
@@ -330,6 +336,9 @@ symbl.test.benchmark
 	})
 .add('symbl.graph.test', function(){
 	symbl.graph.test();
+	})
+.add('symbl.ai.test', function(){
+	symbl.ai.test();
 	})
 .on('cycle', function(event) {
   symbl.log.debug(String(event.target));
