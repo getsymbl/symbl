@@ -119,8 +119,13 @@ symbl.bootstrap = {
 
 	generateUuid 	: function(){},
 	setup 			: function(){},
-	hash			: {}	
-		
+	hash			: {},	
+	test	: function() {
+		return this.copy(symbl.bootstrap);
+	},
+	copy	: function(entity) {
+		return _.cloneDeep(entity);
+	},	
 }
 
 /**
@@ -159,7 +164,7 @@ symbl.bootstrap.setup = function(email, password) {
 		symbl.repository.setItemSync('user', setupUser);
 		symbl.repository.persist();
 		
-	}
+}
 
 /**
 * Initialize Cli
@@ -244,11 +249,11 @@ symbl.cloud = {
 		graphs	: {},
 		
 	},
-	add		: function() {
+	add			: function() {
 		
 	},
-	remove	: function() {},
-	copy	: function() {},
+	remove		: function() {},
+	copy		: function() {},
 
 }	
    
@@ -259,12 +264,12 @@ symbl.graph = {
 	
 	entityPrototype	: 
 	{
-		x 			: 0,
-		y 			: 0,
-		z 			: 0,
-		name		: "",
-		cssClass 	: "",
-		schema		: ""
+		x 				: 0,
+		y 				: 0,
+		z 				: 0,
+		name			: "",
+		cssClass 		: "",
+		schema			: ""
 	},
 	copy				: function(entity) {
 		
@@ -292,10 +297,34 @@ symbl.schema = {
 	{
 		name	: "",
 		model	: {},
-	}
+	},
+	test	: function() {
+		return this.copy(symbl.schema);
+	},
+	copy	: function(entity) {
+		return _.cloneDeep(entity);
+	},
 	
 }
-   
+
+/**
+* Initialize lambda
+*/
+symbl.lambda = {
+	
+	entityPrototype		:
+	{
+		name	: "",
+		code	: "",
+	},
+	test	: function() {
+		return this.copy(symbl.lambda);
+	},
+	copy	: function(entity) {
+		return _.cloneDeep(entity);
+	},
+	
+};
 /**
 * Initialize log
 */
@@ -304,7 +333,13 @@ symbl.log = {
 	debug	: function() {},
 	error	: function() {},
 	info	: function() {},
-	warn	: function() {}
+	warn	: function() {},
+	test	: function() {
+		return this.copy(symbl.log);
+	},
+	copy	: function(entity) {
+		return _.cloneDeep(entity);
+	},
 
 };
 
@@ -339,6 +374,12 @@ symbl.test.benchmark
 	})
 .add('symbl.ai.test', function(){
 	symbl.ai.test();
+	})
+.add('symbl.lambda.test', function(){
+	symbl.lambda.test();
+	})
+.add('symbl.log.test', function(){
+	symbl.log.test();
 	})
 .on('cycle', function(event) {
   symbl.log.debug(String(event.target));
