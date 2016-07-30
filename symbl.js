@@ -9,7 +9,6 @@
 * System dependencies
 */
 
-const _ 			= require('lodash');
 const aws			= require('aws-sdk');
 const benchmark		= require('benchmark');
 const cryptography	= require('node-forge');
@@ -22,7 +21,9 @@ const https 		= require('https');
 const os			= require('os');
 const platform		= require('platform');
 const should		= require('should');
+const gremlin		= require('gremlin');
 const storage 		= require('node-persist');
+
 
 /**
 * Dependency initialization
@@ -85,7 +86,7 @@ symbl.ai = {
 			resources	: "",
 	},
 	copy			: function(entity) {
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 	},
 	test 			: function() {
 		return this.copy(symbl.ai);
@@ -124,7 +125,7 @@ symbl.bootstrap = {
 		return this.copy(symbl.bootstrap);
 	},
 	copy	: function(entity) {
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 	},	
 }
 
@@ -273,7 +274,7 @@ symbl.graph = {
 	},
 	copy				: function(entity) {
 		
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 		
 	},					
 	addNode				: function() {},
@@ -302,7 +303,7 @@ symbl.schema = {
 		return this.copy(symbl.schema);
 	},
 	copy	: function(entity) {
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 	},
 	
 }
@@ -321,7 +322,7 @@ symbl.lambda = {
 		return this.copy(symbl.lambda);
 	},
 	copy	: function(entity) {
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 	},
 	
 };
@@ -338,7 +339,7 @@ symbl.log = {
 		return this.copy(symbl.log);
 	},
 	copy	: function(entity) {
-		return _.cloneDeep(entity);
+		//return _.cloneDeep(entity);
 	},
 
 };
