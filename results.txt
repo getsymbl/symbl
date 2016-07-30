@@ -7,10 +7,13 @@
 [0m    Unit tests[0m
 [2K[0G    [32m  √[0m[90m should have tautology[0m
 [2K[0G    [32m  √[0m[90m should have functional synchronous repository[0m
+[2K[0G    [32m  √[0m[90m should have minimal self definition[0m
+[2K[0G    [32m  √[0m[90m should have working bootstrap hash function[0m
+[2K[0G    [32m  √[0m[90m should have non-empty string bootstrap salt[0m
 [2K[0G    [32m  √[0m[90m should have functional REST service[0m
 [2K[0G    [32m  √[0m[90m should have functional symbl.graph.test[0m
 [2K[0G    [32m  √[0m[90m should copy symbl.graph[0m
 
 
-[92m [0m[32m 7 passing[0m[90m (20ms)[0m
+[92m [0m[32m 10 passing[0m[90m (43ms)[0m
 

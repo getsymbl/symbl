@@ -31,6 +31,27 @@ describe('Baseline tests - Array', function() {
 		should.equal(symbl.repository.getItemSync(testUuid), undefined);
 	});
 	
+	it('should have minimal self definition', function() {
+				
+		should.equal(typeof symbl.ai, 'object');
+		should.equal(typeof symbl.api, 'function');
+		should.equal(typeof symbl.bootstrap, 'object');
+		
+	});
+	
+	it('should have working bootstrap hash function', function() {
+		
+		symbl.bootstrap.hash.update('The quick brown fox jumps over the lazy dog');
+		should.equal(symbl.bootstrap.hash.digest().toHex(), "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6");
+		
+	});
+	
+	it('should have non-empty string bootstrap salt', function() {
+		
+		should.notEqual(symbl.bootstrap.salt.length, 0);
+		
+	});
+	
 	it('should have functional REST service', function() {
 		
 	});

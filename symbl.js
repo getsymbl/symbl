@@ -47,11 +47,16 @@ var symbl = {
 	
 	ai			: {},
 	api			: {},
+	artifact	: {},
 	bootstrap	: {},
 	cloud		: {},
 	cli			: {},
+	enterprise	: {},
+	execution	: {},
 	lambda		: {},
 	log			: {},
+	market		: {},
+	schema		: {},
 	test		: {},
 	
 }
@@ -60,12 +65,16 @@ module.exports = symbl;
 
 symbl.ai				= {};
 symbl.api				= express();
+symbl.artifact			= {};
 symbl.bootstrap			= {};
 symbl.cloud				= {};
 symbl.cli 				= require('commander');
+symbl.enterprise		= {};
+symbl.execution			= {};
 symbl.graph				= {};
 symbl.lambda 			= require('q');
 symbl.log				= {};
+symbl.market			= {};
 symbl.repository		= {};
 symbl.schema			= {};
 symbl.test				= {};
@@ -118,20 +127,23 @@ symbl.api.get('/api', function(req, res) {
 
 symbl.bootstrap = {
 
-	generateUuid 	: function(){},
-	setup 			: function(){},
+	copy			: function(entity) {
+		
+	},	
 	hash			: {},	
+	generateUuid 	: function(){},
+	salt			: "",
+	setup 			: function(){},
 	test	: function() {
 		return this.copy(symbl.bootstrap);
 	},
-	copy	: function(entity) {
-		//return _.cloneDeep(entity);
-	},	
+
 }
 
 /**
 * Initialize bootstrap
 */
+
 symbl.bootstrap.hash = cryptography.md.sha512.create();
 
 symbl.bootstrap.generateUuid = function() {
@@ -143,6 +155,8 @@ symbl.bootstrap.generateUuid = function() {
     });
     return uuid;
 }
+
+symbl.bootstrap.salt = cryptography.random.getBytesSync(32).toString('hex');
 
 symbl.bootstrap.setup = function(email, password) {
 	
