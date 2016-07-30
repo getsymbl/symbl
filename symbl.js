@@ -21,13 +21,15 @@ const https 		= require('https');
 const os			= require('os');
 const platform		= require('platform');
 const should		= require('should');
+const gremlin		= require('gremlin');
 const storage 		= require('node-persist');
+
 
 /**
 * Dependency initialization
 */
 
-storage.initSync( {
+storage.init( {
 		dir: 'data',
 		stringify: cjson.stringify,
 		parse: cjson.parse,
@@ -65,13 +67,35 @@ symbl.graph				= {};
 symbl.lambda 			= require('q');
 symbl.log				= {};
 symbl.repository		= {};
+symbl.schema			= {};
 symbl.test				= {};
 
 /**
 * Initialize symbl repository
 */
-
 symbl.repository = storage;
+
+/**
+* Initialize AI
+*/
+symbl.ai = {
+	
+	entityPrototype : {
+			name 		: "",
+			code		: "",
+			resources	: "",
+	},
+	copy			: function(entity) {
+		//return _.cloneDeep(entity);
+	},
+	test 			: function() {
+		return this.copy(symbl.ai);
+	},
+	add				: function() {},
+	remove			: function() {},
+	
+	
+}
 
 /**
 * Initialize API
@@ -96,14 +120,18 @@ symbl.bootstrap = {
 
 	generateUuid 	: function(){},
 	setup 			: function(){},
-	hash			: {}	
-		
+	hash			: {},	
+	test	: function() {
+		return this.copy(symbl.bootstrap);
+	},
+	copy	: function(entity) {
+		//return _.cloneDeep(entity);
+	},	
 }
 
 /**
 * Initialize bootstrap
 */
-
 symbl.bootstrap.hash = cryptography.md.sha512.create();
 
 symbl.bootstrap.generateUuid = function() {
@@ -123,21 +151,25 @@ symbl.bootstrap.setup = function(email, password) {
 
 		var setupUser = {
 		
-			email 		: email,
-			password 	: password,
-			uuid		: userUuid,
+			email 				: email,
+			emailSecondary		: "",
+			mobile				: "",
+			password 			: password,
+			publicKey			: "",
+			privateKey			: "",
+			uuid				: userUuid,
+			services			: {}
 
 		}
 		
 		symbl.repository.setItemSync('user', setupUser);
 		symbl.repository.persist();
 		
-	}
+}
 
 /**
 * Initialize Cli
 */
-
 symbl.cli
 	.version('0.1.0')
 	.option('-T, -Test', 'Execute tests.')
@@ -203,20 +235,112 @@ symbl.cli
    .description('run <*>')
    .action(function(env) {
 		storage.getItem('user', function (err, value) {
-			console.log(value);
+			
 		}); 
    });
 
 /**
+* Initialize cloud
+*/
+symbl.cloud = {
+
+	entityPrototype	: {
+		
+		name 	: "",
+		graphs	: {},
+		
+	},
+	add			: function() {
+		
+	},
+	remove		: function() {},
+	copy		: function() {},
+
+}	
+   
+/**
+* Initialize graph
+*/   
+symbl.graph = {
+	
+	entityPrototype	: 
+	{
+		x 				: 0,
+		y 				: 0,
+		z 				: 0,
+		name			: "",
+		cssClass 		: "",
+		schema			: ""
+	},
+	copy				: function(entity) {
+		
+		//return _.cloneDeep(entity);
+		
+	},					
+	addNode				: function() {},
+	addConnection 		: function() {},
+	removeNode			: function() {},
+	removeConnection	: function() {},
+	fold				: function() {},
+	intersection		: function() {},
+	metric				: function() {},
+	test				: function() {
+		
+		return this.copy(symbl.graph);
+		
+	},
+	
+};
+
+symbl.schema = {
+	
+	entityPrototype		: 
+	{
+		name	: "",
+		model	: {},
+	},
+	test	: function() {
+		return this.copy(symbl.schema);
+	},
+	copy	: function(entity) {
+		//return _.cloneDeep(entity);
+	},
+	
+}
+
+/**
+* Initialize lambda
+*/
+symbl.lambda = {
+	
+	entityPrototype		:
+	{
+		name	: "",
+		code	: "",
+	},
+	test	: function() {
+		return this.copy(symbl.lambda);
+	},
+	copy	: function(entity) {
+		//return _.cloneDeep(entity);
+	},
+	
+};
+/**
 * Initialize log
 */
-
 symbl.log = {
 	
 	debug	: function() {},
 	error	: function() {},
 	info	: function() {},
-	warn	: function() {}
+	warn	: function() {},
+	test	: function() {
+		return this.copy(symbl.log);
+	},
+	copy	: function(entity) {
+		//return _.cloneDeep(entity);
+	},
 
 };
 
@@ -228,7 +352,6 @@ symbl.log.error = function(message, e) { console.log("Error: " + message); }
 /**
 * Initialize test
 */
-
 symbl.test = {
 	
 	benchmark	: {},
@@ -247,6 +370,18 @@ symbl.test.benchmark
 .add('String#indexOf', function() {
   'Hello World!'.indexOf('o') > -1;
 	})
+.add('symbl.graph.test', function(){
+	symbl.graph.test();
+	})
+.add('symbl.ai.test', function(){
+	symbl.ai.test();
+	})
+.add('symbl.lambda.test', function(){
+	symbl.lambda.test();
+	})
+.add('symbl.log.test', function(){
+	symbl.log.test();
+	})
 .on('cycle', function(event) {
   symbl.log.debug(String(event.target));
 	})
@@ -263,7 +398,6 @@ symbl.test.run = function() {
 /**
 * Cli entry point
 */	
-
 symbl.cli
 	.parse(process.argv);	   
 	

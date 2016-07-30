@@ -34,6 +34,17 @@ describe('Baseline tests - Array', function() {
 	it('should have functional REST service', function() {
 		
 	});
+	
+	it('should have functional symbl.graph.test', function() {
+		
+		
+	});
+	
+	it('should copy symbl.graph', function() {
+		
+		should.notEqual(symbl.graph.copy(symbl.graph), symbl.graph);
+		
+	});
   
   });
  
