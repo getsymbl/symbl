@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+
+{% block inner %}
+<h2 class="question">How can we help?</h2>
+<p><b>Select your first goal to begin.</b></p>
+										
+<table><tr><td class="onboarding-td"><b>Create a new strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'new');" class="button onboarding-button">Select</a></td></tr></table>
+										
+<table><tr><td class="onboarding-td"><b>Integrate with an existing strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'integrate');" class="button onboarding-button">Select</a></td></tr></table>
+										
+<table><tr><td class="onboarding-td"><b>Monitor a remote strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'monitor');" class="button onboarding-button">Select</a></td></tr></table>
+
+{% endblock %}

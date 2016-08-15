@@ -9,6 +9,13 @@
 * System dependencies
 */
 
+/* jslint node: true */
+/* jslint esnext: true */
+
+const VERSION		= '1.1.0';
+const HOST			= '0.0.0.0';
+const PORT			= '8484';
+
 const aws			= require('aws-sdk');
 const benchmark		= require('benchmark');
 const cryptography	= require('node-forge');
@@ -19,30 +26,29 @@ const getmac		= require('getmac');
 const http 			= require('http');
 const https 		= require('https');
 const os			= require('os');
+const vm			= require('vm');
+const cluster		= require('cluster');
 const platform		= require('platform');
 const should		= require('should');
 const gremlin		= require('gremlin');
 const storage 		= require('node-persist');
-
+const lave 			= require('lave');
+const uneval 		= require('uneval');
+const generate 		= require('escodegen').generate;
+const toSource 		= require('tosource');
+const cons 			= require('consolidate');
+const opn 			= require('opn');
 
 /**
 * Dependency initialization
 */
 
-storage.init( {
-		dir: 'data',
-		stringify: cjson.stringify,
-		parse: cjson.parse,
-		encoding: 'utf8',
-		logging: false,
-		continuous: true,
-		interval: false,
-		ttl: false, 
-	} );
+
 
 /**
 * Initialize Symbl
 */
+
 var symbl = {
 	
 	ai			: {},
@@ -59,9 +65,7 @@ var symbl = {
 	schema		: {},
 	test		: {},
 	
-}
-
-module.exports = symbl;
+};
 
 symbl.ai				= {};
 symbl.api				= express();
@@ -82,67 +86,208 @@ symbl.test				= {};
 /**
 * Initialize symbl repository
 */
+
 symbl.repository = storage;
+
+symbl.repository.initSync({
+		dir:  __dirname + '/data',
+		stringify: toSource,
+		parse: eval,
+		encoding: 'utf8',
+		logging: false,
+		continuous: true,
+		interval: false,
+		ttl: true, 
+});
 
 /**
 * Initialize AI
 */
+
 symbl.ai = {
-	
-	entityPrototype : {
-			name 		: "",
-			code		: "",
-			resources	: "",
-	},
-	copy			: function(entity) {
-		//return _.cloneDeep(entity);
-	},
-	test 			: function() {
-		return this.copy(symbl.ai);
-	},
-	add				: function() {},
-	remove			: function() {},
-	
-	
-}
+	id		: "",
+	name	: "",
+	execute : function(options, callback) {
+		symbl.lambda.execute(options, callback);
+	}
+};
+
+/**
+* Initialize Artifact
+*/
+
+symbl.artifact = {
+	id			: "",
+	name 		: "",
+	code		: "",
+	resources	: 0,
+};
 
 /**
 * Initialize API
 */
-symbl.api.get('/', function (req, res) {
-	res.send('/');
-})
 
-symbl.api.get('/test', function(req, res) {
-	res.send('/test');
+symbl.api.use(express.static('resources'));
+symbl.api.engine('html', cons.nunjucks);
+symbl.api.set('view engine', 'html');
+symbl.api.set('views', __dirname + '/resources/views');
+
+symbl.api.get('/', function (req, res) {
+	res.send();
 });
 
-symbl.api.get('/cloud', function(req, res) {
-	res.send('/cloud');
+symbl.api.get('/ai', function(req, res) {
+	res.send(cjson.stringify(symbl.ai));
+});
+
+symbl.api.post('/ai', function(req, res) {
+	res.send(cjson.stringify(symbl.ai.init(req)));
 });
 
 symbl.api.get('/api', function(req, res) {
-	res.send('/api');
+	res.send(cjson.stringify(symbl.api));
 });
 
-symbl.bootstrap = {
+symbl.api.get('/bootstrap', function(req, res) {
+	res.send(cjson.stringify(symbl.bootstrap));
+});
 
-	copy			: function(entity) {
-		
-	},	
-	hash			: {},	
-	generateUuid 	: function(){},
-	salt			: "",
-	setup 			: function(){},
-	test	: function() {
-		return this.copy(symbl.bootstrap);
-	},
+symbl.api.post('/bootstrap', function(req, res) {
+	res.send(cjson.stringify(symbl.bootstrap.init(req)));
+});
 
-}
+symbl.api.get('/test', function(req, res) {
+	res.send(cjson.stringify(symbl.test));
+});
+
+symbl.api.get('/cloud', function(req, res) {
+	res.send(cjson.stringify(symbl.cloud));
+});
+
+symbl.api.get('/status', function(req, res){
+	res.render('status', {
+	title: 'Status',
+	symbl: symbl
+	});
+});
+
+symbl.api.get('/login', function(req, res){
+	res.render('login', {
+	title: 'Login',
+	symbl: symbl
+	});
+});
+
+symbl.api.get('/users', function(req, res){
+	res.render('users', {
+	title: 'Users',
+	symbl: symbl
+	});
+});
+
+symbl.api.get('/document', function(req, res){
+	res.render('document', {
+	title: 'Document',
+	symbl: symbl
+	});
+});
+
+symbl.api.get('/encode', function(req, res){
+	res.render('encode', {
+	title: 'Encode',
+	symbl: symbl
+	});
+});
+
+symbl.api.get('/execute', function(req, res){
+	res.render('execute', {
+	title: 'Execute',
+	symbl: symbl
+	});
+});
 
 /**
 * Initialize bootstrap
 */
+
+symbl.bootstrap = {
+
+	entityPrototype		: 
+	{
+		id		: "",
+		name	: "",
+		model	: {},
+	},
+	id				: "",
+	name			: "",
+	copy			: function(options, callback) {},
+	execute			: function(options, callback) {},
+	debug			: function(options, callback) {
+		symbl.repository.getItem(options.id, function (err, value) {
+			symbl.log.debug(value);
+		});
+	},
+	hash			: {},	
+	generateUuid 	: function(options, callback) {},
+	install			: function(options, callback) {},
+	match			: function(options, callback) {},
+	resources		: 0,
+	salt			: "",
+	search			: function(options, callback) {},
+	setup 			: function(options, callback) {},
+	test			: function(options, callback) {
+		return this.copy(symbl.bootstrap);
+	},
+	version			: VERSION
+
+};
+
+symbl.bootstrap.init = function(options, callback) {
+
+	if(symbl.bootstrap.id !== undefined && symbl.bootstrap.name !== undefined) {
+		symbl.bootstrap.id = symbl.bootstrap.generateUuid();
+		symbl.bootstrap.hash.update(symbl.bootstrap.id + symbl.bootstrap.salt);
+		symbl.bootstrap.name = symbl.bootstrap.hash.digest().toHex();
+		symbl.repository.setItemSync(symbl.bootstrap.id, symbl.bootstrap);
+		symbl.repository.persist();
+		console.log(symbl.bootstrap.id);
+	} else {
+		
+	
+	}
+	
+};
+
+symbl.bootstrap.install = function(schema, graph, options, callback) {
+	
+	//var schema = symbl.graph.search(schema);
+	//var graph = symbl.graph.search(graph);
+	console.log(schema);
+	console.log(graph);
+	
+};
+
+symbl.bootstrap.execute = function(options, callback) {
+
+	symbl.log.debug(options.id);
+	if(options.id !== "") {
+	
+		symbl.repository.getItem(options.id, function (err, value) {
+			symbl.ai.execute({});
+		});
+	
+	} else {
+		
+		symbl.repository.values();
+		
+		
+	}
+	
+	if (callback && typeof(callback) === "function") {
+		callback();
+	}
+	
+};
 
 symbl.bootstrap.hash = cryptography.md.sha512.create();
 
@@ -154,9 +299,36 @@ symbl.bootstrap.generateUuid = function() {
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
     return uuid;
-}
+};
+
+symbl.bootstrap.match = function(options, callback){
+	
+	
+	
+};
 
 symbl.bootstrap.salt = cryptography.random.getBytesSync(32).toString('hex');
+
+symbl.bootstrap.search = function(options, callback){
+	
+	
+};
+
+symbl.bootstrap.service = function(options, callback) {
+
+	if(options.port === undefined) { 
+		options.host = HOST;
+		options.port = PORT;
+	}
+	getmac.getMac(function(err,macAddress){
+		if (err)  throw err;
+		http.createServer(symbl.api).listen(options.port, options.host);
+		symbl.log.info("Starting service on " + os.hostname() + " " + macAddress + " " + options.host + ":" + options.port);
+		symbl.bootstrap.init();
+		opn('http://localhost:' + options.port);
+	});
+	
+};
 
 symbl.bootstrap.setup = function(email, password) {
 	
@@ -174,51 +346,81 @@ symbl.bootstrap.setup = function(email, password) {
 			uuid				: userUuid,
 			services			: {}
 
-		}
+		};
 		
 		symbl.repository.setItemSync('user', setupUser);
 		symbl.repository.persist();
 		
-}
+};
 
 /**
 * Initialize Cli
 */
-symbl.cli
-	.version('0.1.0')
-	.option('-T, -Test', 'Execute tests.')
 
 symbl.cli
-	.command('')
-	.description('')
-	.action(function() {
-		console.log(1);
-	});
-	
+	.version(symbl.bootstrap.version)
+	.option('-T, -Test', 'Execute tests.');
+
 symbl.cli
 	.command('test')
 	.description('run test commands')
 	.action(function() {
 		symbl.test.run();
-	});
+	});	
+
+symbl.cli
+	.command('init')
+	.description('init')
+	.action(function() { symbl.bootstrap.init(); });
+
+symbl.cli
+	.command('execute')
+	.description('execute <id>')
+	.action(function(id) { symbl.bootstrap.execute({id : id}); });
+
+symbl.cli
+	.command('go')
+	.description('execute all known ids')
+	.action(function() { symbl.bootstrap.execute({id : ""}); });
+	
+symbl.cli
+	.command('debug')
+	.description('debug <id>')
+	.action(function(id) { symbl.bootstrap.debug({id : id}); });
 	
 symbl.cli
    .command('setup')
    .description('run setup <email> <password>')
-   .action(function(email, password) { symbl.bootstrap.setup(email, password) } );
+   .action(function(email, password) { symbl.bootstrap.setup(email, password); });
+   
+symbl.cli
+   .command('install <schema> <graph>')
+   .description('install <schema> <graph>')
+   .action(function(schema, graph) { symbl.bootstrap.install(schema, graph); });
 
+symbl.cli
+	.command('graph init <schema> <graph>')
+	.description('graph init <schema> <graph>')
+	.action(function(schema, graph) { symbl.graph.init(schema, graph); });
+   
+symbl.cli
+	.command('schema init <schema>')
+	.description('schema init <schema>')
+	.action(function(schema) { symbl.schema.init(schema); });
+   
 symbl.cli
    .command('service <host> <port>')
    .description('run as a service on <host> <port>')
    .action(function(host, port) {
-		if(port == undefined) { host = "localhost", port = 80; }
-		getmac.getMac(function(err,macAddress){
-			if (err)  throw err;
-			http.createServer(symbl.api).listen(port, host);
-			symbl.log.info("Starting service on " + os.hostname() + " " + macAddress + " " + host + ":" + port);
-		});
-		
-   });
+		symbl.bootstrap.service({host:host, port:port});	
+});
+   
+symbl.cli
+   .command('up')
+   .description('run as a service on ' + HOST + ':' + PORT)
+   .action(function(host, port) {
+		symbl.bootstrap.service({host:host, port:port});	
+});
 
 symbl.cli
    .command('import <type> <dir> [otherDirs...]')
@@ -230,7 +432,7 @@ symbl.cli
          symbl.log.debug('dir "%s"', oDir);
        });
      }
-   });
+});
    
 symbl.cli
    .command('export <entity> <type> <dir> [otherDirs...]')
@@ -242,20 +444,22 @@ symbl.cli
          symbl.log.debug('dir "%s"', oDir);
        });
      }
-   });
+});
 
 symbl.cli
    .command('*')
-   .description('run <*>')
+   .description('<*>')
    .action(function(env) {
-		storage.getItem('user', function (err, value) {
-			
-		}); 
-   });
+	   if(env === null || env === undefined || env === "") {
+		   console.log("Usage: symbl <command>");
+	   }
+	   
+});
 
 /**
 * Initialize cloud
 */
+
 symbl.cloud = {
 
 	entityPrototype	: {
@@ -270,11 +474,12 @@ symbl.cloud = {
 	remove		: function() {},
 	copy		: function() {},
 
-}	
+};	
    
 /**
 * Initialize graph
 */   
+
 symbl.graph = {
 	
 	entityPrototype	: 
@@ -288,8 +493,6 @@ symbl.graph = {
 	},
 	copy				: function(entity) {
 		
-		//return _.cloneDeep(entity);
-		
 	},					
 	addNode				: function() {},
 	addConnection 		: function() {},
@@ -298,6 +501,10 @@ symbl.graph = {
 	fold				: function() {},
 	intersection		: function() {},
 	metric				: function() {},
+	search				: function(id, options, callback) {
+		
+	},
+
 	test				: function() {
 		
 		return this.copy(symbl.graph);
@@ -310,39 +517,58 @@ symbl.schema = {
 	
 	entityPrototype		: 
 	{
+		id		: "",
 		name	: "",
 		model	: {},
 	},
+	copy	: function(entity) {
+		return cjson.parse(cjson.stringify(entityPrototype));
+	},
+	init	: function(name, options, callback) {
+		var schema = symbl.schema.copy(entityPrototype);
+		schema.id = symbl.bootstrap.generateUuid();
+		schema.name = name;
+		symbl.repository.setItemSync(schema.id, schema);
+		symbl.repository.persist();
+	},
+	search	: function(id, options, callback) {
+		
+	},
 	test	: function() {
 		return this.copy(symbl.schema);
-	},
-	copy	: function(entity) {
-		//return _.cloneDeep(entity);
-	},
+	}
 	
-}
+};
 
 /**
 * Initialize lambda
 */
+
 symbl.lambda = {
-	
+	id				: "",
+	name			: "",
 	entityPrototype		:
 	{
 		name	: "",
 		code	: "",
 	},
-	test	: function() {
+	execute : function(options, callback) {
+		if (callback && typeof(callback) === "function") {
+			callback();
+		}
+	},
+	test	: function(options, callback) {
 		return this.copy(symbl.lambda);
 	},
-	copy	: function(entity) {
-		//return _.cloneDeep(entity);
+	copy	: function(options, callback) {
+
 	},
-	
 };
+
 /**
 * Initialize log
 */
+
 symbl.log = {
 	
 	debug	: function() {},
@@ -353,36 +579,35 @@ symbl.log = {
 		return this.copy(symbl.log);
 	},
 	copy	: function(entity) {
-		//return _.cloneDeep(entity);
+
 	},
 
 };
 
 symbl.log.debug = function(message, e) { if(true) { console.log(message); } };
-symbl.log.info = function(message, e) { console.log(message); }
-symbl.log.warn = function(message, e) { console.log("Warning: " + message); }
-symbl.log.error = function(message, e) { console.log("Error: " + message); }
+symbl.log.info = function(message, e) { console.log(message); };
+symbl.log.warn = function(message, e) { console.log("Warning: " + message); };
+symbl.log.error = function(message, e) { console.log("Error: " + message); };
 
 /**
 * Initialize test
 */
+
 symbl.test = {
 	
 	benchmark	: {},
 	unit		: {},
 	integration	: {},
-	run			: function() {}
+	run			: function() {},
+	status		: "OK"
 	
 };
 
-symbl.test.benchmark = new benchmark.Suite;
+symbl.test.benchmark = new benchmark.Suite();
 
 symbl.test.benchmark
 .add('RegExp#test', function() {
   /o/.test('Hello World!');
-	})
-.add('String#indexOf', function() {
-  'Hello World!'.indexOf('o') > -1;
 	})
 .add('symbl.graph.test', function(){
 	symbl.graph.test();
@@ -401,17 +626,31 @@ symbl.test.benchmark
 	})
 .on('complete', function() {
   symbl.log.debug('Fastest is ' + this.filter('fastest').map('name'));
-	})
+	});
 
+symbl.test.execute = function() {
+
+	return symbl.test.run();
+	
+};	
+	
 symbl.test.run = function() {
 
-	symbl.test.benchmark.run({ 'async': true });	
+	return symbl.test.benchmark.run({ 'async': true });	
 	
-}
+};
 	
 /**
 * Cli entry point
 */	
+
 symbl.cli
 	.parse(process.argv);	   
+
+/**
+* AI entry point
+*/	
+symbl.ai
+	.execute(process.argv);
 	
+module.exports = symbl;

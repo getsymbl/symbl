@@ -1,0 +1,72 @@
+<html>
+	<head>
+		
+		<script src="/js/cufon-yui.js" type="text/javascript"></script>
+		<script src="/js/cufon-replace.js" type="text/javascript"></script>
+		<script src="/js/Nilland-Black_900.font.js" type="text/javascript"></script>
+		<script src="/js/Nilland_700.font.js" type="text/javascript"></script>
+		<script src="/js/Nilland_400.font.js" type="text/javascript"></script>
+
+		<link rel="stylesheet" href="/css/main.css" type="text/css" />
+
+	</head>
+	<body>
+			{% block header %}
+				<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header" class="thin">
+						<div class="fullscreen">
+
+							<!-- Logo -->
+								<h1 style="line-height:64px;font-size:64px;"><a href="/">Symbl</a><span style="font-size:16px;vertical-align:super;">&reg;</span></h1>
+
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+			
+	
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="/login">Login</a></li>
+							<li><a href="/docs">Help</a></li>
+							<li><a href="/status">Status</a></li>
+							<li><a target="_blank" href="http://symbl.io">About</a></li>
+						</ul>
+					</nav>
+				{% endblock %}
+				<!-- Main -->
+					<div id="main">
+						<section id="banner">
+							<div class="inner">
+								{% block inner %}{% endblock %}
+							</div>
+						</section>
+					</div>
+	
+				{% block footer %}
+				<!-- Footer -->
+
+			</div>
+
+			<!-- Scripts -->
+			<script src="/js/jquery.min.js"></script>
+			<script src="/js/skel.min.js"></script>
+			<script src="/js/util.js"></script>
+			<script src="/js/main.js"></script>
+			{% endblock %}
+		
+	</body>
+
+</html>
