@@ -1,0 +1,135 @@
+					<section id="banner">
+						<div class="inner">					
+							<div id="onboarding-step-1" class="onboarding-step">
+								<section id="banner1">
+								<div class="inner">
+									
+									<form id="onboarding-form">
+										<p>
+													<div class="onboarding-section">
+														<span class="onboarding-text">
+														I am a
+														</span>
+													</div>
+													<div class="onboarding-section">
+														<select class="onboarding-select" name="user-role">
+															<option value="" selected></option>
+															<option value="CxO/Owner">CxO/Owner</option>
+															<option value="VP/Director">VP/Director</option>
+															<option value="PM/Team Lead">Manager</option>
+															<option value="Engineer">Engineer</option>
+															<option value="Auditor">Auditor</option>
+															<option value="Analyst">Analyst</option>
+														</select><br/>
+														<label class="madlib-error" id="validation-role-error" style="display:none;">Please select your role.</label>
+													</div>
+													<div class="onboarding-section">
+														<span class="onboarding-text">
+														for a
+														</span>
+													</div>
+													<div class="onboarding-section">
+														<select class="onboarding-select" name="user-industry">
+															<option value="" selected></option>
+															<option value="security">security</option>
+															<option value="healthcare">healthcare</option>
+															<option value="ecommerce">ecommerce</option>
+														</select><br/>
+														<label class="madlib-error" id="validation-industry-error" style="display:none;">Please select your industry.</label>
+													</div>
+													<div class="onboarding-section">
+														<span class="onboarding-text">
+														company in
+														</span>
+													</div>
+													<div class="onboarding-section"> 
+														<select class="onboarding-select onboarding-select-region" name="user-region">
+															<option value="" selected></option>
+															<option value="North America">North America</option>
+															<option value="South America">South America</option>
+															<option value="Europe">Europe</option>
+															<option value="Asia">Asia</option>
+															<option value="Oceania">Oceania</option>
+														</select> .<br/>
+														<label class="madlib-error" id="validation-region-error" style="display:none;">Please select your region.</label>
+													</div>
+										</p>
+									</form>
+									<br/>
+									<br/>
+									<p class="onboarding-action"><a href="javascript:onboardingTask(2, 'start');" class="button onboarding-button">Get Started</a></p>
+									<p class="onboarding-after"></p>
+								</div>
+								</section>
+							</div>
+	
+							<div id="onboarding-step-2" class="onboarding-step" style="display:none;">
+							
+								<section id="banner2">
+									<div class="inner">
+										<h2>How can we help?</h2>
+										<p><b>Select your first goal to begin.</b></p>
+										
+										<table><tr><td class="onboarding-td"><b>Create a new compliance strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'new');" class="button onboarding-button">Select</a></td></tr></table>
+										
+										<table><tr><td class="onboarding-td"><b>Integrate with an existing compliance strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'integrate');" class="button onboarding-button">Select</a></td></tr></table>
+										
+										<table><tr><td class="onboarding-td"><b>Monitor a third party for compliance</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'monitor');" class="button onboarding-button">Select</a></td></tr></table>
+										
+									</div>
+								</section>
+							
+							</div>
+							
+							<div id="onboarding-step-3" class="onboarding-step" style="display:none;">
+							
+								<section id="banner3">
+									<div class="inner">
+										<h2>Compliance factors</h2>
+										<p><b>Select your business needs.</b></p>
+										<form>
+										<label><input type="checkbox" name="factor-1" value="1">We contract with state or federal governments.</label>
+										<label><input type="checkbox" name="factor-2" value="1">We handle credit card transactions.</label>
+										<label><input type="checkbox" name="factor-3" value="1">We handle health information.</label>
+										<label><input type="checkbox" name="factor-4" value="1">We are a financial institution.</label>
+										<label><input type="checkbox" name="factor-5" value="1">We provide software to critical industries.</label>
+										<label><input type="checkbox" name="factor-6" value="1">We work with students or academic information.</label>
+										</form>
+										<a href="javascript:onboardingTask(4, 'continue');" class="button onboarding-button">Continue</a>
+									</div>
+								</section>
+							
+							</div>
+							
+							<div id="onboarding-step-4" class="onboarding-step" style="display:none;">
+							
+								<section id="banner4">
+									<div class="inner">
+										<h2>Beta Signup</h2>
+										<br/>
+										<p><b>Enter your email address.</b></p>
+										<form style="height:139px;">
+											<label><input type="text" name="email" value="" placeholder="Email address" style="width:400px;"></label>
+											<label class="madlib-error" id="validation-email-error" style="display:none;">Please enter a valid email.</label>
+										</form>
+										<a href="javascript:onboardingTask(5, 'send');" class="button onboarding-button">Send</a>
+									</div>
+								</section>
+							
+							</div>
+							
+							<div id="onboarding-step-5" class="onboarding-step" style="display:none;">
+							
+								<section id="banner5">
+									<div class="inner">
+										<h2>Thank You!</h2>
+										<br/>
+										<p><b>We'll notify you when your beta invite is ready.</b></p>
+										<p>Best regards,<br/>
+										The AHDIT Team</p>
+									</div>
+								</section>
+							
+							</div>
+						</div>
+					</section>

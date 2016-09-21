@@ -3383,6 +3383,51 @@
 		
 .question {
 
-font-size: 2.25em;font-family:Raleway;font-weight: 700;letter-spacing: 0.1em;border-bottom: solid 2px black;	
+	font-size: 2.25em;
+	font-family:Raleway;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	border-bottom: solid 2px black;	
+	
+}
+
+input.search {
+
+	border: 1px solid black;
+	padding-left:.5em;
+	
+}
+
+div.search-area {
+
+	margin-bottom:0em;
+	
+}
+
+h1.ui-header {
+	
+	line-height:64px;
+	font-size:64px;
+	margin-bottom:.25em;
+		
+}
+
+#ui-panel {
+
+	margin-top: 0em;
+	padding-left: 1.5em;
+	
+}
+
+#ui-panel article {
+	width: 7.5em;
+	height: 7.5em;
+	margin-top: 1.75em;
+	margin-left: 1em;
+}
+
+.tiles article > a h2 {
+	
+	letter-spacing: normal;
 	
 }

@@ -18,32 +18,33 @@ const PORT			= '8484';
 
 const aws			= require('aws-sdk');
 const benchmark		= require('benchmark');
+const bodyParser 	= require('body-parser');
+const cjson			= require('circular-json');
 const cryptography	= require('node-forge');
+const cluster		= require('cluster');
 const express		= require('express');
 const forge			= require('forge');
-const cjson			= require('circular-json');
 const getmac		= require('getmac');
+const gremlin		= require('gremlin');
 const http 			= require('http');
 const https 		= require('https');
+const opn 			= require('opn');
 const os			= require('os');
-const vm			= require('vm');
-const cluster		= require('cluster');
 const platform		= require('platform');
 const should		= require('should');
-const gremlin		= require('gremlin');
 const storage 		= require('node-persist');
 const lave 			= require('lave');
 const uneval 		= require('uneval');
 const generate 		= require('escodegen').generate;
 const toSource 		= require('tosource');
 const cons 			= require('consolidate');
-const opn 			= require('opn');
+const url			= require('url');
+const vm			= require('vm');
+const hornSAT 		= require('horn-sat');
 
 /**
 * Dependency initialization
 */
-
-
 
 /**
 * Initialize Symbl
@@ -105,11 +106,44 @@ symbl.repository.initSync({
 */
 
 symbl.ai = {
+	
+	entityPrototype		: 
+	{
+		id		: "",
+		name	: "",
+		model	: {},
+	},
 	id		: "",
 	name	: "",
 	execute : function(options, callback) {
 		symbl.lambda.execute(options, callback);
-	}
+	},
+	init : function(options, callback) {
+		symbl.ai.id = symbl.bootstrap.generateUuid();
+		symbl.ai.name = options.name;
+		symbl.repository.setItemSync(symbl.ai.id, symbl);
+		symbl.repository.persist();
+		symbl.log.info(symbl.ai.id);
+	},
+	search : function(options, callback) {
+		
+		return symbl.repository.values();
+		
+	},
+	match : function(options, callback) {
+		
+	},
+	repository : require('node-persist').initSync({
+		dir:  __dirname + '/data',
+		stringify: cjson.stringify,
+		parse: cjson.parse,
+		encoding: 'utf8',
+		logging: false,
+		continuous: true,
+		interval: false,
+		ttl: true, 
+	})
+	
 };
 
 /**
@@ -128,6 +162,7 @@ symbl.artifact = {
 */
 
 symbl.api.use(express.static('resources'));
+symbl.api.use(bodyParser.json());
 symbl.api.engine('html', cons.nunjucks);
 symbl.api.set('view engine', 'html');
 symbl.api.set('views', __dirname + '/resources/views');
@@ -144,6 +179,10 @@ symbl.api.post('/ai', function(req, res) {
 	res.send(cjson.stringify(symbl.ai.init(req)));
 });
 
+symbl.api.post('/add', function(req, res) {
+	symbl.cli.parse(['add']);	
+});
+
 symbl.api.get('/api', function(req, res) {
 	res.send(cjson.stringify(symbl.api));
 });
@@ -156,12 +195,39 @@ symbl.api.post('/bootstrap', function(req, res) {
 	res.send(cjson.stringify(symbl.bootstrap.init(req)));
 });
 
+symbl.api.get('/graph', function(req, res) {
+	res.send(cjson.stringify(symbl.graph));
+});
+
+symbl.api.get('/schema', function(req, res) {
+	res.send(cjson.stringify(symbl.schema));
+});
+
+symbl.api.get('/repository', function(req, res) {
+	res.send(cjson.stringify(symbl.repository));
+});
+
 symbl.api.get('/test', function(req, res) {
 	res.send(cjson.stringify(symbl.test));
 });
 
 symbl.api.get('/cloud', function(req, res) {
 	res.send(cjson.stringify(symbl.cloud));
+});
+
+symbl.api.get('/add', function(req, res) {
+	res.render('add', {
+	title: 'Add',
+	symbl: symbl
+	});
+});
+
+
+symbl.api.get('/setup', function(req, res){
+	res.render('setup', {
+	title: 'Setup',
+	symbl: symbl
+	});
 });
 
 symbl.api.get('/status', function(req, res){
@@ -206,12 +272,12 @@ symbl.api.get('/execute', function(req, res){
 	});
 });
 
+
 /**
 * Initialize bootstrap
 */
 
 symbl.bootstrap = {
-
 	entityPrototype		: 
 	{
 		id		: "",
@@ -220,7 +286,10 @@ symbl.bootstrap = {
 	},
 	id				: "",
 	name			: "",
-	copy			: function(options, callback) {},
+	model			: {},
+	copy			: function(options, callback) {
+		
+	},
 	execute			: function(options, callback) {},
 	debug			: function(options, callback) {
 		symbl.repository.getItem(options.id, function (err, value) {
@@ -238,6 +307,7 @@ symbl.bootstrap = {
 	test			: function(options, callback) {
 		return this.copy(symbl.bootstrap);
 	},
+	repository 		: {},
 	version			: VERSION
 
 };
@@ -248,7 +318,7 @@ symbl.bootstrap.init = function(options, callback) {
 		symbl.bootstrap.id = symbl.bootstrap.generateUuid();
 		symbl.bootstrap.hash.update(symbl.bootstrap.id + symbl.bootstrap.salt);
 		symbl.bootstrap.name = symbl.bootstrap.hash.digest().toHex();
-		symbl.repository.setItemSync(symbl.bootstrap.id, symbl.bootstrap);
+		symbl.repository.setItemSync(symbl.bootstrap.id, symbl);
 		symbl.repository.persist();
 		console.log(symbl.bootstrap.id);
 	} else {
@@ -258,12 +328,26 @@ symbl.bootstrap.init = function(options, callback) {
 	
 };
 
-symbl.bootstrap.install = function(schema, graph, options, callback) {
+symbl.bootstrap.install = function(options, callback) {
 	
-	//var schema = symbl.graph.search(schema);
-	//var graph = symbl.graph.search(graph);
-	console.log(schema);
-	console.log(graph);
+	var parsedUrl = url.parse(options.uri);
+	
+	http.get({
+	  hostname: parsedUrl.hostname,
+	  port: parsedUrl.port,
+	  path: parsedUrl.path,
+	  agent: false  
+	}, (res) => {
+	  var body = '';
+	  res.on('data', function(chunk) {
+		body += chunk;
+	  });
+	  res.on('end', function() {
+		symbl.bootstrap.model = cjson.parse(body);
+		symbl.bootstrap.init();
+	  });
+	});
+		
 	
 };
 
@@ -310,8 +394,7 @@ symbl.bootstrap.match = function(options, callback){
 symbl.bootstrap.salt = cryptography.random.getBytesSync(32).toString('hex');
 
 symbl.bootstrap.search = function(options, callback){
-	
-	
+		
 };
 
 symbl.bootstrap.service = function(options, callback) {
@@ -394,10 +477,15 @@ symbl.cli
    .action(function(email, password) { symbl.bootstrap.setup(email, password); });
    
 symbl.cli
-   .command('install <schema> <graph>')
-   .description('install <schema> <graph>')
-   .action(function(schema, graph) { symbl.bootstrap.install(schema, graph); });
+   .command('install <uri>')
+   .description('install <uri>')
+   .action(function(uri) { symbl.bootstrap.install({uri : uri}); });
 
+symbl.cli
+	.command('add <name>')
+	.description('add <name>')
+	.action(function(name) { symbl.ai.init({name : name}); });
+   
 symbl.cli
 	.command('graph init <schema> <graph>')
 	.description('graph init <schema> <graph>')
@@ -504,7 +592,7 @@ symbl.graph = {
 	search				: function(id, options, callback) {
 		
 	},
-
+	model				: {},
 	test				: function() {
 		
 		return this.copy(symbl.graph);
@@ -606,9 +694,6 @@ symbl.test = {
 symbl.test.benchmark = new benchmark.Suite();
 
 symbl.test.benchmark
-.add('RegExp#test', function() {
-  /o/.test('Hello World!');
-	})
 .add('symbl.graph.test', function(){
 	symbl.graph.test();
 	})
@@ -654,3 +739,4 @@ symbl.ai
 	.execute(process.argv);
 	
 module.exports = symbl;
+

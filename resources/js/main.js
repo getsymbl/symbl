@@ -194,6 +194,14 @@
 							$menu._hide();
 
 				});
+				
+				$('#add-button').mouseenter(function() {
+				  $(this).css({'opacity': 1});
+				});
+				
+				$('#add-button').mouseleave(function() {
+				  $(this).css({'opacity': .25});
+				});
 
 	});
 

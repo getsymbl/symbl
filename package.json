@@ -1,6 +1,6 @@
 {
   "name": "symbl",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "The Symbl.io AI as a Service Platform",
   "main": "symbl.js",
   "directories": {
@@ -11,8 +11,10 @@
     "async": "^1.5.2",
     "aws-sdk": "^2.2.28",
     "benchmark": "^2.0.0",
+    "body-parser": "^1.15.2",
     "circular-json": "^0.3.0",
     "commander": "^2.9.0",
+    "companion-roots": "0.0.1",
     "consolidate": "^0.14.1",
     "dependency-graph": "^0.4.1",
     "escodegen": "^1.8.1",
@@ -21,6 +23,10 @@
     "getmac": "^1.0.7",
     "glob": "^6.0.4",
     "gremlin": "^2.0.0",
+    "horn-sat": "0.0.1",
+    "inductive.js": "^0.2.1",
+    "jade": "^1.11.0",
+    "jsonld": "^0.4.11",
     "lave": "^1.1.10",
     "node-forge": "^0.6.38",
     "node-persist": "0.0.12",
@@ -31,6 +37,8 @@
     "semver": "^5.1.0",
     "should": "^8.1.0",
     "swig": "^1.4.2",
+    "then-jade": "^2.4.1",
+    "tinyliquid": "^0.2.33",
     "tosource": "^1.0.0",
     "uneval": "^0.1.2"
   },

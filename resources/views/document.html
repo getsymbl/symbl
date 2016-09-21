@@ -1,13 +1,39 @@
 {% extends "index.html" %}
 
 {% block inner %}
-<h2 class="question">How can we help?</h2>
-<p><b>Select your first goal to begin.</b></p>
-										
-<table><tr><td class="onboarding-td"><b>Create a new strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'new');" class="button onboarding-button">Select</a></td></tr></table>
-										
-<table><tr><td class="onboarding-td"><b>Integrate with an existing strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'integrate');" class="button onboarding-button">Select</a></td></tr></table>
-										
-<table><tr><td class="onboarding-td"><b>Monitor a remote strategy</b><br/></td><td class="onboarding-button-td"><a href="javascript:onboardingTask(3, 'monitor');" class="button onboarding-button">Select</a></td></tr></table>
-
+<h2 class="question">Document</h2>
+  <div class="search-area"><input type="text" id="search" class="search" /></div>
+  
+  <section class="tiles" id="ui-panel">
+								
+								{% for symbl in symbl.ai.search() %}
+								{% if symbl.ai.name.length > 0 %}
+								<article class="style1">
+									<span class="image">
+										<img src="" alt="" />
+									</span>
+									<a href="/document/{{symbl.ai.name}}">
+										<h2>{{symbl.ai.name}}</h2>
+										<div class="content">
+											<p></p>
+										</div>
+									</a>
+								</article>	
+								{% endif %}
+								{% endfor %}
+								<article id="add-button" class="style1" style="opacity:.25;">
+									<span class="image">
+										<img src="" alt="" />
+									</span>
+									<a href="/add">
+										<h2>+</h2>
+										<div class="content">
+											<p></p>
+										</div>
+									</a>
+								</article>
+							</section>
+							
+							
+							
 {% endblock %}
